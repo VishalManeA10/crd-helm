@@ -1,0 +1,8 @@
+apiVersion: "tkc.a10networks.com/v1alpha1"
+kind: VirtualServer
+metadata:
+  name: {{ template "a10-connector.fullname" . }}-virtualserver
+spec:
+  {{- if .Values.virtualserver }}
+  {{ toYaml .Values.virtualserver | trim | nindent 2 }}
+  {{- end }}

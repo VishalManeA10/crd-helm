@@ -1,0 +1,10 @@
+apiVersion: "tkc.a10networks.com/v1"
+kind: ServiceGroup
+metadata:
+  name: {{ template "a10-connector.fullname" . }}-servicegroup
+spec:
+  {{- if .Values.servicegroup }}
+  {{ toYaml .Values.servicegroup | trim | nindent 2 }}
+  {{- end }}
+  service: {{ .Values.ingress.serviceName | quote }}
+  serverHealthCheck: {{ .Values.healthmonitor.name }}

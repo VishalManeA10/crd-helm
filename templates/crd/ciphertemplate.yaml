@@ -1,0 +1,8 @@
+apiVersion: "tkc.a10networks.com/v1alpha1"
+kind: TemplateCipher
+metadata:
+  name: {{ template "a10-connector.fullname" . }}-ciphertemplate
+spec:
+  {{- if .Values.ciphertemplate }}
+  {{ toYaml .Values.ciphertemplate | trim | nindent 2 }}
+  {{- end }}

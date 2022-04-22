@@ -1,0 +1,9 @@
+apiVersion: "tkc.a10networks.com/v1"
+kind: HealthMonitor
+metadata:
+  name: {{ template "a10-connector.fullname" . }}-healthmonitor
+spec:
+  port: {{ .Values.ingress.servicePort }}
+  {{- if .Values.healthmonitor }}
+  {{ toYaml .Values.healthmonitor | trim | nindent 2 }}
+  {{- end }}

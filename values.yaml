@@ -1,0 +1,188 @@
+---
+imageCredentials:
+  # Pull secret used to pull from a private image registry.
+  pullSecret: "Always"
+  registry:
+    # Docker registry url. Overrides global.registry.url.
+    url:
+  repoPath: ""
+  pullPolicy: IfNotPresent
+
+
+productInfo:
+  name: "a10-kubernetes-connector"
+
+replicaCount: 1
+
+updateStrategy:
+  # type can be OnDelete or RollingUpdate
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 0
+    maxSurge: 1
+
+ingress:
+  ingressName: ingress1
+  serviceName: nginxsvc
+  servicePort: 443
+  serviceSecret: nginx-certs-keys
+  host: "*.httpd-static-ip" 
+  pathType: Prefix
+  annotations:
+    kubernetes.io/ingress.class: "a10-acos"
+
+metadata:
+    annotations: {}
+    podAnnotations: {}
+
+secret:
+   username: admin
+   password: a10
+
+# lbUrl: "https://10.64.26.115"
+lbUrl: "https://10.65.22.188"
+
+partition: "shared"
+
+images:
+    a10Connector:
+      # name: "a10networks/a10-kubernetes-connector"
+      # tag: "1.10.3.0"
+      name : vishalmane9196/a10-kubernetes-connector
+      tag: 1.11.0-d.31
+      pullPolicy: "Always"
+
+service:
+    annotations:
+      sharedVIPLabel: ""
+      addressPoolName: ""
+    type: LoadBalancer
+    clusterIP: ''
+    externalIPs: []
+    loadBalancerIP: ''
+    loadBalancerSourceRanges: []
+    protocol: TCP
+    port: 22
+
+args:
+  ingressClass: a10-acos
+  useNodeExternalIp: true
+  PatchToUpdate: true
+  safeDelete: true
+  useIngressClassOnly: true
+  includeAllNodes: true
+  includeMaster: false
+
+config_overlay:
+  enable: true
+  overlay_endpoint_ip: 20.10.10.188
+  vtep_encapsulation: ip-encap
+
+natpool:
+  poolName: np-1
+  startAddress: 192.168.90.230
+  endAddress: 192.168.90.235
+  netmask: /24
+  gateway: 192.168.90.1
+
+healthmonitor:
+  name: hm_https
+  type: https
+  retry: 5
+  interval: 10
+  timeout: 2
+  httpHost: "app.a10networks.com"
+  httpMethod: "GET"
+  httpUrl: "/"
+  httpCode: 200
+  httpCodeRegex: "[2][0-9][0-9]"
+
+servicegroup:
+  name: "sg-1"  
+  healthCheckDisable: 1
+
+ciphertemplate:
+  name: tc-1
+  user-tag: "cipher template demo"
+  cipher-cfg:
+  - cipher-suite: TLS1_RSA_AES_128_GCM_SHA256
+    priority: 1
+  - cipher-suite: TLS1_RSA_AES_256_GCM_SHA384
+    priority: 2
+  cipher13-cfg:
+  - cipher13-suite: TLS_AES_256_GCM_SHA384
+    priority: 1
+
+clientssl:
+  name: cssl-1
+  ca-certs:
+  - ca-cert: ca-cert
+  # crl-certs:
+  # - crl : crl-cert
+  certificate-list:
+  - cert: nginx-certs-keys
+    key: nginx-certs-keys
+  dh-type: "1024"
+  ec-list:
+  - ec: secp256r1
+  - ec: secp384r1
+  close-notify: 1
+  version: 33
+  dgversion: 31
+  sni-enable-log: 0
+  sni-bypass-missing-cert: 0
+  sni-bypass-expired-cert: 0
+  sni-bypass-enable-log: 0
+  renegotiation-disable: 1
+  session-cache-size: 100
+  session-cache-timeout: 128
+
+serverssl:
+  name: sssl-1
+  ca-certs:
+  - ca-cert: ca-cert
+  # crl-certs:
+  # - crl: crl-cert
+  certificate:
+    cert: nginx-certs-keys
+    key: nginx-certs-keys
+  server-name: nginxsvc
+  dh-type: "1024"
+  close-notify: 0
+  version: 33
+  dgversion: 31
+  server-certificate-error:
+  - error-type: ignore
+  - error-type: trap
+  oscp-stapling: 0
+  use-client-sni: 0
+  renegotiation-disable: 1
+  session-cache-size: 100
+  session-cache-timeout: 128
+
+virtualserver:
+  name: vip-1
+  ip-address: 20.20.10.10
+
+virtualport:
+  protocol: "https"
+  snatAuto: 1
+  userTag: "virtual-port-demo"
+
+
+#logging enhancment
+log:
+  level: INFO
+  filename: /var/log/tkc.log
+  file_maxage: 1
+  rotation_size: 3
+  pod_location: /var/log
+
+
+persistentVolume:
+  storageCapacity: 1Gi
+  path: /var/log/vol1
+  node: k8sworker3
+
+persistentVolumeClaim:
+  storage: 10Mi

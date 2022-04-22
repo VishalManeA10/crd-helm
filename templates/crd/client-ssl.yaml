@@ -1,0 +1,10 @@
+apiVersion: "tkc.a10networks.com/v1alpha1"
+kind: ClientSsl
+metadata:
+  name: {{ template "a10-connector.fullname" . }}-clientssl
+spec:
+  template-cipher: {{ .Values.ciphertemplate.name }}
+  {{- if .Values.clientssl }}
+  {{ toYaml .Values.clientssl | trim | nindent 2 }}
+  {{- end }}
+  

@@ -1,0 +1,28 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.ingress.ingressName }}
+  annotations:
+    {{- include "a10-connector.helm-annotations" . | nindent 4 }}
+    {{- if .Values.ingress.annotations }}
+    {{ toYaml .Values.ingress.annotations | trim | nindent 6 }}
+    {{- end }}
+  labels:
+    {{- include "a10-connector.helm-labels" . | nindent 4 }}
+spec:
+  tls:
+  - hosts: 
+    - {{ .Values.ingress.host | quote }}
+    secretName: {{ .Values.ingress.serviceSecret  }}  
+  rules:
+  - host: {{ .Values.ingress.host | quote }}
+    http:
+      paths:
+      - path: /
+        pathType: {{ .Values.ingress.pathType }}
+        backend:
+          service:
+            name: {{ .Values.ingress.serviceName }}
+            port: 
+              number: {{ .Values.ingress.servicePort }}

@@ -1,0 +1,11 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "a10-connector.fullname" . }}-persistentvolumeclaim
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: {{ template "a10-connector.fullname" . }}-storageclass
+  resources:
+    requests:
+      storage: {{ .Values.persistentVolumeClaim.storage }}

@@ -1,0 +1,8 @@
+apiVersion: "tkc.a10networks.com/v1"
+kind: NatPool
+metadata:
+  name: {{ template "a10-connector.fullname" . }}-natpool
+spec:
+  {{- if .Values.natpool }}
+  {{ toYaml .Values.natpool | trim | nindent 2 }}
+  {{- end }}

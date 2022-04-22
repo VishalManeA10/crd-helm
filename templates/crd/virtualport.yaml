@@ -1,0 +1,15 @@
+apiVersion: "tkc.a10networks.com/v1"
+kind: VirtualPort
+metadata:
+  name: {{ template "a10-connector.fullname" . }}-virtualport
+spec:
+  port: {{ .Values.ingress.servicePort }}
+  virtualServer: {{ .Values.virtualserver.name }}
+  ingress: {{ .Values.ingress.ingressName | quote }}
+  snatPool: {{ .Values.natpool.poolName }}
+  serverSslTemplate: {{ .Values.serverssl.name }}
+  clientSslTemplate: {{ .Values.clientssl.name }}
+  {{- if .Values.virtualport }}
+  {{ toYaml .Values.virtualport | trim | nindent 2 }}
+  {{- end }}
+ 

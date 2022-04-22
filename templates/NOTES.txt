@@ -1,0 +1,16 @@
+Thank you for installing {{ .Chart.Name }}
+You have installed {{ .Chart.Name }} helm chart version: {{ .Chart.Version }}
+You have installed {{ .Chart.Name }} version: {{ .Values.images.a10Connector.tag }}
+
+Your vthunder ip:  {{ .Values.lbUrl }}
+Helm chart deployment name: {{ .Release.Name }}
+
+To learn more about the release, try:
+# To list down the helm deployment
+  $ helm list 
+# To check tkc is deployed or not
+  $ kubectl get pods -o wide  
+# to get the kubernetes manifests
+ $ helm get manifest {{ .Release.Name }}
+# To uninstall tkc deployment
+  $ helm uninstall {{ .Release.Name }}

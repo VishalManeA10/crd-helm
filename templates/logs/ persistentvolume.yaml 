@@ -1,0 +1,21 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: {{ template "a10-connector.fullname" . }}-persistentvolume
+spec:
+  capacity:
+    storage: {{ .Values.persistentVolume.storageCapacity }}
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: {{ template "a10-connector.fullname" . }}-storageclass
+  local:
+    path: {{ .Values.persistentVolume.path }}
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - {{ .Values.persistentVolume.node }}

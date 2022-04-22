@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "a10-connector.fullname" . }}-deployment
+  annotations:
+    {{- include "a10-connector.helm-annotations" . | nindent 4 }}
+    {{- if .Values.metadata.annotations }}
+    {{ toYaml .Values.metadata.annotations | trim | nindent 4 }}
+    {{- end }}
+  labels:
+    {{- include "a10-connector.helm-labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      release: {{ .Release.Name | quote }}
+      app: {{ template "a10-connector.name" .}}
+  strategy:
+    type: {{ .Values.updateStrategy.type }}
+{{- if and (eq .Values.updateStrategy.type "RollingUpdate") .Values.updateStrategy.rollingUpdate }}
+    rollingUpdate:
+{{- if .Values.updateStrategy.rollingUpdate.maxUnavailable }}
+      maxUnavailable: {{ .Values.updateStrategy.rollingUpdate.maxUnavailable }}
+{{- end }}
+{{- if .Values.updateStrategy.rollingUpdate.maxSurge }}
+      maxSurge: {{ .Values.updateStrategy.rollingUpdate.maxSurge }}
+{{- end }}
+{{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "a10-connector.helm-labels" . | nindent 6 }}
+      annotations:
+        {{- include "a10-connector.helm-annotations" . | nindent 6 }}
+        {{- if .Values.metadata.podAnnotations }}
+        {{ toYaml .Values.metadata.podAnnotations | trim | nindent 8 }}
+        {{- end }}
+    spec:
+      imagePullSecrets:
+         - name: {{ template "a10-connector.pullSecrets" . }}
+      serviceAccountName: {{ template "a10-connector.fullname" . }}-serviceaccount
+      containers:
+        {{- include "a10-connector.a10pod" . | nindent 8 }}
+      volumes:
+        - name: www-persistent-storage
+          persistentVolumeClaim:
+            claimName: {{ template "a10-connector.fullname" . }}-persistentvolumeclaim
